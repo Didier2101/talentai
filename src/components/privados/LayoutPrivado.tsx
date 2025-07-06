@@ -25,7 +25,7 @@ const LayoutPrivado: React.FC<LayoutPrivadoProps> = ({ children }) => {
             <MobileHeader />
 
             {/* Contenido principal */}
-            <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-96'}`}>
+            <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'md:ml-14' : ''}`}>
                 {/* Contenido con scroll */}
                 <main className="flex-1 overflow-y-auto pt-20 md:pt-0 pb-20 md:pb-0">
                     <div className="py-6 min-h-full">

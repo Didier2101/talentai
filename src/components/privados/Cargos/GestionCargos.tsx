@@ -4,57 +4,107 @@ import {
     Briefcase,
     PlusCircle,
     Edit,
-    Trash2,
     Upload,
     CheckCircle,
-    Clock,
     XCircle,
-    ChevronRight,
     Search,
     Frown,
-    Filter,
-    Menu,
-    X
+    Users,
+    FileText,
+    Activity
 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 interface Cargo {
     id: string;
     titulo: string;
-    estado: 'Activo' | 'Inactivo' | 'En Proceso';
+    area: string;
+    estado: 'Activo' | 'Cerrado' | 'En Evaluación';
     fechaPublicacion: string;
     candidatosAplicados: number;
+    urgencia: 'Alta' | 'Media' | 'Baja';
 }
 
 const GestionCargos: React.FC = () => {
     const navigate = useNavigate();
-    const [cargos, setCargos] = useState<Cargo[]>([
-        { id: '1', titulo: 'Desarrollador Frontend Senior', estado: 'Activo', fechaPublicacion: '2025-06-01', candidatosAplicados: 15 },
-        { id: '2', titulo: 'Especialista en Marketing Digital', estado: 'En Proceso', fechaPublicacion: '2025-06-10', candidatosAplicados: 8 },
-        { id: '3', titulo: 'Analista de Datos Jr.', estado: 'Inactivo', fechaPublicacion: '2025-05-15', candidatosAplicados: 22 },
+    const [cargos] = useState<Cargo[]>([
+        {
+            id: '1',
+            titulo: 'Desarrollador Frontend Senior',
+            area: 'Tecnología',
+            estado: 'En Evaluación',
+            fechaPublicacion: '2025-06-01',
+            candidatosAplicados: 15,
+            urgencia: 'Alta'
+        },
+        {
+            id: '2',
+            titulo: 'Especialista en Marketing Digital',
+            area: 'Marketing',
+            estado: 'Activo',
+            fechaPublicacion: '2025-06-10',
+            candidatosAplicados: 8,
+            urgencia: 'Media'
+        },
+        {
+            id: '3',
+            titulo: 'Analista de Datos Jr.',
+            area: 'Analítica',
+            estado: 'Activo',
+            fechaPublicacion: '2025-05-15',
+            candidatosAplicados: 22,
+            urgencia: 'Baja'
+        },
     ]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+    // const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
     const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+    const [selectedArea, setSelectedArea] = useState<string | null>(null);
 
     const handleEdit = (id: string) => {
         navigate(`/privados/cargos/editar/${id}`);
     };
 
-    const handleDelete = (id: string) => {
-        setCargos(cargos.filter(cargo => cargo.id !== id));
+    // const handleDelete = (id: string) => {
+    //     setCargos(cargos.filter(cargo => cargo.id !== id));
+    // };
+
+    const handleEvaluate = (id: string) => {
+        const cargo = cargos.find(c => c.id === id);
+        if (!cargo) return;
+
+        Swal.fire({
+            title: '¿Evaluar candidatos?',
+            html: `Vas a evaluar <b>${cargo.candidatosAplicados} candidatos</b> para el puesto de <b>${cargo.titulo}</b>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, evaluar',
+            cancelButtonText: 'Cancelar',
+            background: '#1e293b',
+            color: '#e2e8f0'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                navigate(`/privados/candidatos/${id}`);
+            }
+        });
     };
 
     const filteredCargos = cargos.filter(cargo => {
         const matchesSearch = cargo.titulo.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = selectedStatus ? cargo.estado === selectedStatus : true;
-        return matchesSearch && matchesStatus;
+        const matchesArea = selectedArea ? cargo.area === selectedArea : true;
+        return matchesSearch && matchesStatus && matchesArea;
     });
 
     const statusOptions = [
         { value: 'Activo', label: 'Activos', color: 'green' },
-        { value: 'En Proceso', label: 'En Proceso', color: 'amber' },
-        { value: 'Inactivo', label: 'Inactivos', color: 'red' }
+        { value: 'En Evaluación', label: 'En Evaluación', color: 'amber' },
+        { value: 'Cerrado', label: 'Cerrados', color: 'red' }
     ];
+
+    const areaOptions = ['Tecnología', 'Marketing', 'Analítica', 'Recursos Humanos', 'Operaciones'];
 
     return (
         <div className="min-h-full text-white max-w-8xl mx-auto">
@@ -70,7 +120,7 @@ const GestionCargos: React.FC = () => {
                                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-amber-500">
                                     Gestión de Cargos
                                 </h1>
-                                <p className="text-sm md:text-base text-blue-200">Administra y crea nuevos puestos en tu organización</p>
+                                <p className="text-sm md:text-base text-blue-200">Administra y evalúa los puestos en tu organización</p>
                             </div>
                         </div>
 
@@ -87,58 +137,6 @@ const GestionCargos: React.FC = () => {
 
             {/* Main Content */}
             <div className=" px-3 sm:px-4 lg:px-6 pb-8 md:pb-12">
-                {/* Mobile Filters */}
-                <div className="md:hidden mb-4">
-                    <button
-                        onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-                        className="flex items-center justify-between w-full bg-gradient-to-b from-slate-800/70 to-slate-900/70 p-3 rounded-lg shadow border border-blue-700/30"
-                    >
-                        <div className="flex items-center">
-                            <Filter className="w-4 h-4 mr-2 text-blue-300" />
-                            <span className="text-sm font-medium">Filtrar cargos</span>
-                        </div>
-                        {mobileFiltersOpen ? (
-                            <X className="w-4 h-4 text-blue-300" />
-                        ) : (
-                            <Menu className="w-4 h-4 text-blue-300" />
-                        )}
-                    </button>
-
-                    {mobileFiltersOpen && (
-                        <div className="mt-2 bg-gradient-to-b from-slate-800/70 to-slate-900/70 p-4 rounded-lg shadow border border-blue-700/30">
-                            <div className="grid grid-cols-2 gap-2">
-                                {statusOptions.map((option) => (
-                                    <button
-                                        key={option.value}
-                                        onClick={() => {
-                                            setSelectedStatus(selectedStatus === option.value ? null : option.value);
-                                            setMobileFiltersOpen(false);
-                                        }}
-                                        className={`px-3 py-2 text-xs rounded-lg border ${selectedStatus === option.value
-                                            ? `bg-${option.color}-800/30 text-${option.color}-300 border-${option.color}-600/50`
-                                            : 'border-blue-700/30 bg-blue-800/20 text-blue-200'
-                                            }`}
-                                    >
-                                        {option.label}
-                                    </button>
-                                ))}
-                                <button
-                                    onClick={() => {
-                                        setSelectedStatus(null);
-                                        setMobileFiltersOpen(false);
-                                    }}
-                                    className={`px-3 py-2 text-xs rounded-lg border ${!selectedStatus
-                                        ? 'bg-blue-700/30 text-white border-blue-600/50'
-                                        : 'border-blue-700/30 bg-blue-800/20 text-blue-200'
-                                        }`}
-                                >
-                                    Todos
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
                 {/* Search and Filters */}
                 <div className="mb-4 md:mb-6 bg-gradient-to-b from-slate-800/70 to-slate-900/70 p-3 md:p-4 rounded-xl shadow-lg border border-blue-700/30">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
@@ -156,8 +154,11 @@ const GestionCargos: React.FC = () => {
                         </div>
                         <div className="hidden md:flex space-x-2">
                             <button
-                                onClick={() => setSelectedStatus(null)}
-                                className={`px-4 py-2 text-sm rounded-lg border ${!selectedStatus
+                                onClick={() => {
+                                    setSelectedStatus(null);
+                                    setSelectedArea(null);
+                                }}
+                                className={`px-4 py-2 text-sm rounded-lg border ${!selectedStatus && !selectedArea
                                     ? 'bg-blue-700/30 text-white border-blue-600/50'
                                     : 'border-blue-700/30 bg-blue-800/20 text-blue-200'
                                     }`}
@@ -177,6 +178,22 @@ const GestionCargos: React.FC = () => {
                                 </button>
                             ))}
                         </div>
+                    </div>
+
+                    {/* Área Filters */}
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        {areaOptions.map((area) => (
+                            <button
+                                key={area}
+                                onClick={() => setSelectedArea(selectedArea === area ? null : area)}
+                                className={`px-3 py-1 text-xs rounded-lg border ${selectedArea === area
+                                    ? 'bg-blue-700/30 text-white border-blue-600/50'
+                                    : 'border-blue-700/30 bg-blue-800/20 text-blue-200'
+                                    }`}
+                            >
+                                {area}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
@@ -206,13 +223,16 @@ const GestionCargos: React.FC = () => {
                                                 Título del Cargo
                                             </th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-blue-300 uppercase tracking-wider">
+                                                Área
+                                            </th>
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-blue-300 uppercase tracking-wider">
                                                 Estado
                                             </th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-blue-300 uppercase tracking-wider">
-                                                Publicación
+                                                Postulantes
                                             </th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-blue-300 uppercase tracking-wider">
-                                                Candidatos
+                                                Urgencia
                                             </th>
                                             <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-blue-300 uppercase tracking-wider">
                                                 Acciones
@@ -224,30 +244,42 @@ const GestionCargos: React.FC = () => {
                                             <tr key={cargo.id} className="hover:bg-blue-800/10 transition-colors">
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="text-sm font-medium text-white">{cargo.titulo}</div>
+                                                    <div className="text-xs text-blue-300">{cargo.fechaPublicacion}</div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="text-sm text-blue-200">{cargo.area}</div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="flex items-center">
                                                         {cargo.estado === 'Activo' ? (
                                                             <CheckCircle className="w-4 h-4 mr-2 text-green-400" />
-                                                        ) : cargo.estado === 'En Proceso' ? (
-                                                            <Clock className="w-4 h-4 mr-2 text-amber-400" />
+                                                        ) : cargo.estado === 'En Evaluación' ? (
+                                                            <Activity className="w-4 h-4 mr-2 text-amber-400" />
                                                         ) : (
                                                             <XCircle className="w-4 h-4 mr-2 text-red-400" />
                                                         )}
                                                         <span className={`text-sm ${cargo.estado === 'Activo' ? 'text-green-400' :
-                                                            cargo.estado === 'En Proceso' ? 'text-amber-400' :
+                                                            cargo.estado === 'En Evaluación' ? 'text-amber-400' :
                                                                 'text-red-400'
                                                             }`}>
                                                             {cargo.estado}
                                                         </span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-200">
-                                                    {cargo.fechaPublicacion}
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex items-center">
+                                                        <Users className="w-4 h-4 mr-2 text-blue-300" />
+                                                        <span className="text-sm text-white">
+                                                            {cargo.candidatosAplicados}
+                                                        </span>
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-900/50 text-blue-200">
-                                                        {cargo.candidatosAplicados} candidatos
+                                                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${cargo.urgencia === 'Alta' ? 'bg-red-900/50 text-red-300' :
+                                                        cargo.urgencia === 'Media' ? 'bg-amber-900/50 text-amber-300' :
+                                                            'bg-green-900/50 text-green-300'
+                                                        }`}>
+                                                        {cargo.urgencia}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
@@ -259,11 +291,11 @@ const GestionCargos: React.FC = () => {
                                                         Editar
                                                     </button>
                                                     <button
-                                                        onClick={() => handleDelete(cargo.id)}
-                                                        className="text-red-300 hover:text-white inline-flex items-center group"
+                                                        onClick={() => handleEvaluate(cargo.id)}
+                                                        className="text-purple-300 hover:text-white inline-flex items-center group"
                                                     >
-                                                        <Trash2 className="w-4 h-4 mr-1" />
-                                                        Eliminar
+                                                        <FileText className="w-4 h-4 mr-1" />
+                                                        Evaluar
                                                     </button>
                                                     <Link
                                                         to={`/privados/cargos/${cargo.id}/subir-cv`}
@@ -272,13 +304,7 @@ const GestionCargos: React.FC = () => {
                                                         <Upload className="w-4 h-4 mr-1" />
                                                         Subir CVs
                                                     </Link>
-                                                    <Link
-                                                        to={`/privados/cargos/${cargo.id}`}
-                                                        className="text-green-300 hover:text-white inline-flex items-center group"
-                                                    >
-                                                        Ver detalles
-                                                        <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                                                    </Link>
+
                                                 </td>
                                             </tr>
                                         ))}
@@ -291,17 +317,20 @@ const GestionCargos: React.FC = () => {
                                 {filteredCargos.map((cargo) => (
                                     <div key={cargo.id} className="bg-gradient-to-b from-slate-800/70 to-slate-900/70 p-4 rounded-lg shadow border border-blue-700/30">
                                         <div className="flex justify-between items-start mb-2">
-                                            <h3 className="text-sm font-medium text-white">{cargo.titulo}</h3>
+                                            <div>
+                                                <h3 className="text-sm font-medium text-white">{cargo.titulo}</h3>
+                                                <p className="text-xs text-blue-300">{cargo.area}</p>
+                                            </div>
                                             <div className="flex items-center">
                                                 {cargo.estado === 'Activo' ? (
                                                     <CheckCircle className="w-3 h-3 mr-1 text-green-400" />
-                                                ) : cargo.estado === 'En Proceso' ? (
-                                                    <Clock className="w-3 h-3 mr-1 text-amber-400" />
+                                                ) : cargo.estado === 'En Evaluación' ? (
+                                                    <Activity className="w-3 h-3 mr-1 text-amber-400" />
                                                 ) : (
                                                     <XCircle className="w-3 h-3 mr-1 text-red-400" />
                                                 )}
                                                 <span className={`text-xs ${cargo.estado === 'Activo' ? 'text-green-400' :
-                                                    cargo.estado === 'En Proceso' ? 'text-amber-400' :
+                                                    cargo.estado === 'En Evaluación' ? 'text-amber-400' :
                                                         'text-red-400'
                                                     }`}>
                                                     {cargo.estado}
@@ -309,8 +338,16 @@ const GestionCargos: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className="flex justify-between items-center text-xs text-blue-200 mb-3">
-                                            <span>Publicado: {cargo.fechaPublicacion}</span>
-                                            <span>{cargo.candidatosAplicados} candidatos</span>
+                                            <div className="flex items-center">
+                                                <Users className="w-3 h-3 mr-1" />
+                                                <span>{cargo.candidatosAplicados} postulantes</span>
+                                            </div>
+                                            <span className={`px-2 py-0.5 rounded-full text-xs ${cargo.urgencia === 'Alta' ? 'bg-red-900/50 text-red-300' :
+                                                cargo.urgencia === 'Media' ? 'bg-amber-900/50 text-amber-300' :
+                                                    'bg-green-900/50 text-green-300'
+                                                }`}>
+                                                {cargo.urgencia}
+                                            </span>
                                         </div>
                                         <div className="flex justify-between space-x-2">
                                             <button
@@ -321,11 +358,11 @@ const GestionCargos: React.FC = () => {
                                                 Editar
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(cargo.id)}
-                                                className="flex-1 bg-red-800/30 text-red-300 text-xs py-1.5 px-2 rounded flex items-center justify-center"
+                                                onClick={() => handleEvaluate(cargo.id)}
+                                                className="flex-1 bg-purple-800/30 text-purple-300 text-xs py-1.5 px-2 rounded flex items-center justify-center"
                                             >
-                                                <Trash2 className="w-3 h-3 mr-1" />
-                                                Eliminar
+                                                <FileText className="w-3 h-3 mr-1" />
+                                                Evaluar
                                             </button>
                                             <Link
                                                 to={`/privados/cargos/${cargo.id}/subir-cv`}
@@ -334,12 +371,7 @@ const GestionCargos: React.FC = () => {
                                                 <Upload className="w-3 h-3 mr-1" />
                                                 CVs
                                             </Link>
-                                            <Link
-                                                to={`/privados/cargos/${cargo.id}`}
-                                                className="flex-1 bg-green-800/30 text-green-300 text-xs py-1.5 px-2 rounded flex items-center justify-center"
-                                            >
-                                                <ChevronRight className="w-3 h-3" />
-                                            </Link>
+
                                         </div>
                                     </div>
                                 ))}

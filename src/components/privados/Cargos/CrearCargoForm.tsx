@@ -11,9 +11,35 @@ import {
     Clock,
     X,
     Save,
-    ArrowLeft
+    ArrowLeft,
+    Calendar,
+    UserPlus
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+
+// Ciudades principales de Colombia
+const ciudadesColombia = [
+    "Bogotá",
+    "Medellín",
+    "Cali",
+    "Barranquilla",
+    "Cartagena",
+    "Bucaramanga",
+    "Pereira",
+    "Manizales",
+    "Cúcuta",
+    "Ibagué",
+    "Villavicencio",
+    "Santa Marta",
+    "Montería",
+    "Valledupar",
+    "Sincelejo",
+    "Tunja",
+    "Popayán",
+    "Neiva",
+    "Armenia",
+    "Pasto"
+];
 
 interface CargoFormData {
     id?: string;
@@ -27,6 +53,10 @@ interface CargoFormData {
     tipo_contrato: 'Indefinido' | 'Fijo' | 'Obra y Labor' | 'Servicios';
     salario_rango_min?: number;
     salario_rango_max?: number;
+    fecha_cierre: string;
+    vacantes: number;
+    area: string;
+    urgencia: 'Alta' | 'Media' | 'Baja';
 }
 
 interface CrearCargoFormProps {
@@ -42,10 +72,14 @@ const CrearCargoForm: React.FC<CrearCargoFormProps> = ({ initialData }) => {
         responsabilidades: '',
         habilidades_clave: '',
         experiencia_minima: '',
-        ubicacion: '',
+        ubicacion: 'Bogotá', // Valor por defecto
         tipo_contrato: 'Indefinido',
         salario_rango_min: undefined,
         salario_rango_max: undefined,
+        fecha_cierre: '',
+        vacantes: 1,
+        area: 'Tecnología',
+        urgencia: 'Media'
     });
     const [isLoading, setIsLoading] = useState(false);
 
@@ -54,9 +88,28 @@ const CrearCargoForm: React.FC<CrearCargoFormProps> = ({ initialData }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value ? parseInt(value) : undefined }));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+
+        // Validación de fecha de cierre
+        if (formData.fecha_cierre && new Date(formData.fecha_cierre) < new Date()) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Fecha inválida',
+                text: 'La fecha de cierre no puede ser anterior a la fecha actual',
+                confirmButtonColor: "#2563eb",
+                background: "#1e293b",
+                color: "#e2e8f0"
+            });
+            setIsLoading(false);
+            return;
+        }
 
         try {
             // Simulación de llamada a la API
@@ -73,7 +126,7 @@ const CrearCargoForm: React.FC<CrearCargoFormProps> = ({ initialData }) => {
                 });
                 navigate('/privados/cargos');
             }
-        } catch (error) {
+        } catch {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -86,6 +139,8 @@ const CrearCargoForm: React.FC<CrearCargoFormProps> = ({ initialData }) => {
             setIsLoading(false);
         }
     };
+
+    const areaOptions = ['Tecnología', 'Marketing', 'Analítica', 'Recursos Humanos', 'Operaciones', 'Finanzas', 'Ventas'];
 
     return (
         <div className="min-h-full text-white max-w-8xl mx-auto">
@@ -119,7 +174,7 @@ const CrearCargoForm: React.FC<CrearCargoFormProps> = ({ initialData }) => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                             {/* Título del Cargo */}
                             <div>
-                                <label htmlFor="titulo" className="block text-sm font-medium text-blue-300 mb-2 flex items-center">
+                                <label htmlFor="titulo" className="text-sm font-medium text-blue-300 mb-2 flex items-center">
                                     <Briefcase className="w-4 h-4 mr-2 text-amber-300" />
                                     Título del Cargo
                                 </label>
@@ -134,26 +189,49 @@ const CrearCargoForm: React.FC<CrearCargoFormProps> = ({ initialData }) => {
                                 />
                             </div>
 
+                            {/* Área/Dpto */}
+                            <div>
+                                <label htmlFor="area" className="text-sm font-medium text-blue-300 mb-2 flex items-center">
+                                    <Briefcase className="w-4 h-4 mr-2 text-purple-300" />
+                                    Área/Departamento
+                                </label>
+                                <select
+                                    name="area"
+                                    id="area"
+                                    value={formData.area}
+                                    onChange={handleChange}
+                                    required
+                                    className="mt-1 block w-full bg-slate-800/50 border border-blue-700/30 text-white rounded-lg shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent p-3"
+                                >
+                                    {areaOptions.map(area => (
+                                        <option key={area} value={area}>{area}</option>
+                                    ))}
+                                </select>
+                            </div>
+
                             {/* Ubicación */}
                             <div>
-                                <label htmlFor="ubicacion" className="block text-sm font-medium text-blue-300 mb-2 flex items-center">
+                                <label htmlFor="ubicacion" className="text-sm font-medium text-blue-300 mb-2 flex items-center">
                                     <MapPin className="w-4 h-4 mr-2 text-green-300" />
-                                    Ubicación
+                                    Ubicación (Ciudad)
                                 </label>
-                                <input
-                                    type="text"
+                                <select
                                     name="ubicacion"
                                     id="ubicacion"
                                     value={formData.ubicacion}
                                     onChange={handleChange}
                                     required
                                     className="mt-1 block w-full bg-slate-800/50 border border-blue-700/30 text-white rounded-lg shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent p-3"
-                                />
+                                >
+                                    {ciudadesColombia.map(ciudad => (
+                                        <option key={ciudad} value={ciudad}>{ciudad}</option>
+                                    ))}
+                                </select>
                             </div>
 
                             {/* Tipo de Contrato */}
                             <div>
-                                <label htmlFor="tipo_contrato" className="block text-sm font-medium text-blue-300 mb-2 flex items-center">
+                                <label htmlFor="tipo_contrato" className="text-sm font-medium text-blue-300 mb-2 flex items-center">
                                     <FileText className="w-4 h-4 mr-2 text-purple-300" />
                                     Tipo de Contrato
                                 </label>
@@ -172,9 +250,44 @@ const CrearCargoForm: React.FC<CrearCargoFormProps> = ({ initialData }) => {
                                 </select>
                             </div>
 
+                            {/* Fecha de Cierre */}
+                            <div>
+                                <label htmlFor="fecha_cierre" className="text-sm font-medium text-blue-300 mb-2 flex items-center">
+                                    <Calendar className="w-4 h-4 mr-2 text-red-300" />
+                                    Fecha de Cierre
+                                </label>
+                                <input
+                                    type="date"
+                                    name="fecha_cierre"
+                                    id="fecha_cierre"
+                                    value={formData.fecha_cierre}
+                                    onChange={handleChange}
+                                    min={new Date().toISOString().split('T')[0]}
+                                    className="mt-1 block w-full bg-slate-800/50 border border-blue-700/30 text-white rounded-lg shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent p-3"
+                                />
+                            </div>
+
+                            {/* Vacantes */}
+                            <div>
+                                <label htmlFor="vacantes" className="text-sm font-medium text-blue-300 mb-2 flex items-center">
+                                    <UserPlus className="w-4 h-4 mr-2 text-blue-300" />
+                                    Número de Vacantes
+                                </label>
+                                <input
+                                    type="number"
+                                    name="vacantes"
+                                    id="vacantes"
+                                    min="1"
+                                    value={formData.vacantes}
+                                    onChange={handleNumberChange}
+                                    required
+                                    className="mt-1 block w-full bg-slate-800/50 border border-blue-700/30 text-white rounded-lg shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent p-3"
+                                />
+                            </div>
+
                             {/* Experiencia Mínima */}
                             <div>
-                                <label htmlFor="experiencia_minima" className="block text-sm font-medium text-blue-300 mb-2 flex items-center">
+                                <label htmlFor="experiencia_minima" className="text-sm font-medium text-blue-300 mb-2 flex items-center">
                                     <Clock className="w-4 h-4 mr-2 text-amber-300" />
                                     Experiencia Mínima
                                 </label>
@@ -190,9 +303,29 @@ const CrearCargoForm: React.FC<CrearCargoFormProps> = ({ initialData }) => {
                                 />
                             </div>
 
+                            {/* Urgencia */}
+                            <div>
+                                <label htmlFor="urgencia" className="text-sm font-medium text-blue-300 mb-2 flex items-center">
+                                    <Clock className="w-4 h-4 mr-2 text-red-300" />
+                                    Urgencia de Contratación
+                                </label>
+                                <select
+                                    name="urgencia"
+                                    id="urgencia"
+                                    value={formData.urgencia}
+                                    onChange={handleChange}
+                                    required
+                                    className="mt-1 block w-full bg-slate-800/50 border border-blue-700/30 text-white rounded-lg shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent p-3"
+                                >
+                                    <option value="Alta">Alta</option>
+                                    <option value="Media">Media</option>
+                                    <option value="Baja">Baja</option>
+                                </select>
+                            </div>
+
                             {/* Rango Salarial */}
                             <div>
-                                <label htmlFor="salario_rango_min" className="block text-sm font-medium text-blue-300 mb-2 flex items-center">
+                                <label htmlFor="salario_rango_min" className="text-sm font-medium text-blue-300 mb-2 flex items-center">
                                     <DollarSign className="w-4 h-4 mr-2 text-green-300" />
                                     Salario Mínimo (Opcional)
                                 </label>
@@ -201,14 +334,14 @@ const CrearCargoForm: React.FC<CrearCargoFormProps> = ({ initialData }) => {
                                     name="salario_rango_min"
                                     id="salario_rango_min"
                                     value={formData.salario_rango_min || ''}
-                                    onChange={handleChange}
+                                    onChange={handleNumberChange}
                                     placeholder="Ej: 2000000"
                                     className="mt-1 block w-full bg-slate-800/50 border border-blue-700/30 text-white rounded-lg shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent p-3"
                                 />
                             </div>
 
                             <div>
-                                <label htmlFor="salario_rango_max" className="block text-sm font-medium text-blue-300 mb-2 flex items-center">
+                                <label htmlFor="salario_rango_max" className="text-sm font-medium text-blue-300 mb-2 flex items-center">
                                     <DollarSign className="w-4 h-4 mr-2 text-green-300" />
                                     Salario Máximo (Opcional)
                                 </label>
@@ -217,7 +350,7 @@ const CrearCargoForm: React.FC<CrearCargoFormProps> = ({ initialData }) => {
                                     name="salario_rango_max"
                                     id="salario_rango_max"
                                     value={formData.salario_rango_max || ''}
-                                    onChange={handleChange}
+                                    onChange={handleNumberChange}
                                     placeholder="Ej: 3500000"
                                     className="mt-1 block w-full bg-slate-800/50 border border-blue-700/30 text-white rounded-lg shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent p-3"
                                 />
@@ -226,7 +359,7 @@ const CrearCargoForm: React.FC<CrearCargoFormProps> = ({ initialData }) => {
 
                         {/* Descripción del Cargo */}
                         <div className="mb-8">
-                            <label htmlFor="descripcion" className="block text-sm font-medium text-blue-300 mb-2 flex items-center">
+                            <label htmlFor="descripcion" className="text-sm font-medium text-blue-300 mb-2 flex items-center">
                                 <FileText className="w-4 h-4 mr-2 text-blue-300" />
                                 Descripción del Cargo
                             </label>
@@ -244,7 +377,7 @@ const CrearCargoForm: React.FC<CrearCargoFormProps> = ({ initialData }) => {
 
                         {/* Requisitos Principales */}
                         <div className="mb-8">
-                            <label htmlFor="requisitos_principales" className="block text-sm font-medium text-blue-300 mb-2 flex items-center">
+                            <label htmlFor="requisitos_principales" className="text-sm font-medium text-blue-300 mb-2 flex items-center">
                                 <List className="w-4 h-4 mr-2 text-amber-300" />
                                 Requisitos Principales (para la IA)
                             </label>
@@ -265,7 +398,7 @@ const CrearCargoForm: React.FC<CrearCargoFormProps> = ({ initialData }) => {
 
                         {/* Responsabilidades */}
                         <div className="mb-8">
-                            <label htmlFor="responsabilidades" className="block text-sm font-medium text-blue-300 mb-2 flex items-center">
+                            <label htmlFor="responsabilidades" className="text-sm font-medium text-blue-300 mb-2 flex items-center">
                                 <CheckCircle className="w-4 h-4 mr-2 text-green-300" />
                                 Responsabilidades Clave
                             </label>
@@ -283,7 +416,7 @@ const CrearCargoForm: React.FC<CrearCargoFormProps> = ({ initialData }) => {
 
                         {/* Habilidades Clave */}
                         <div className="mb-8">
-                            <label htmlFor="habilidades_clave" className="block text-sm font-medium text-blue-300 mb-2 flex items-center">
+                            <label htmlFor="habilidades_clave" className="text-sm font-medium text-blue-300 mb-2 flex items-center">
                                 <Award className="w-4 h-4 mr-2 text-purple-300" />
                                 Habilidades Clave (Separadas por Coma)
                             </label>
