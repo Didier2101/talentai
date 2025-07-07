@@ -1,18 +1,14 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import {
-  Building2, CreditCard, Check,
-  Mail, Lock
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Building2, CreditCard, Mail, Lock, Check } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { empresaSchema, type EmpresaData } from '../../../schemas/userSchema';
 import Swal from 'sweetalert2';
-import { registerCompany, resendVerificationEmail } from '../../../services/api';
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error] = useState('');
+  const navigate = useNavigate();
 
   const {
     register,
@@ -28,83 +24,46 @@ const Register = () => {
   });
 
   const onSubmit = async (data: EmpresaData) => {
-    console.log("data enviada", data)
-    // Validación adicional
-    if (!data.plan_seleccionado) {
-      return Swal.fire({
-        icon: "warning",
-        title: "Plan requerido",
-        text: "Por favor selecciona un plan para continuar",
+    try {
+      setIsLoading(true);
+
+      // Enviar datos al json-server
+      const response = await fetch('http://localhost:3000/empresas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...data,
+          fecha_registro: new Date().toISOString(),
+          activa: true
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al registrar la empresa');
+      }
+
+      const empresaRegistrada = await response.json();
+
+      // Mostrar confirmación
+      Swal.fire({
+        icon: "success",
+        title: "Registro exitoso",
+        text: `Empresa ${empresaRegistrada.nombre} registrada correctamente`,
         confirmButtonColor: "#2563eb",
         background: "#1e293b",
         color: "#e2e8f0"
       });
-    }
 
-    try {
-      setIsLoading(true);
-      const result = await registerCompany(data); // Tu función de registro
-
-      if (!result.success) {
-        return Swal.fire({
-          icon: "error",
-          title: "Error en el registro",
-          text: result.message || "Ocurrió un error durante el registro",
-          confirmButtonColor: "#2563eb",
-          background: "#1e293b",
-          color: "#e2e8f0"
-        });
-      }
-
-      // Registro exitoso - solicitar verificación
-      await Swal.fire({
-        icon: "success",
-        title: "Verifica tu email",
-        html: `
-        <div class="text-blue-200 text-left">
-          <p class="mb-4">Hemos enviado un correo de verificación a <strong class="text-white">${data.email_contacto}</strong>.</p>
-          <div class="bg-blue-900/20 p-4 rounded-lg border border-blue-800">
-            <p class="text-sm text-blue-300">
-              <span class="font-medium text-white">Importante:</span> Revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.
-            </p>
-          </div>
-          <p class="mt-4 text-sm text-blue-400">
-            ¿No recibiste el correo? Revisa tu carpeta de spam o 
-            <button id="resend-btn" class="ml-1 text-amber-400 hover:text-amber-300 font-medium">
-              solicita un nuevo enlace
-            </button>
-          </p>
-        </div>
-      `,
-        confirmButtonColor: "#2563eb",
-        background: "#1e293b",
-        color: "#e2e8f0",
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        didOpen: () => {
-          document.getElementById('resend-btn')?.addEventListener('click', async () => {
-            Swal.showLoading();
-            const resendResult = await resendVerificationEmail(data.email_contacto);
-            Swal.fire({
-              icon: resendResult.success ? "success" : "error",
-              title: resendResult.success ? "Correo reenviado" : "Error",
-              text: resendResult.message,
-              confirmButtonColor: "#2563eb",
-              background: "#1e293b",
-              color: "#e2e8f0"
-            });
-          });
-        }
-      });
-
-      // Redirección después de aceptar
-      // navigate('/login');
+      // Redirigir al dashboard
+      navigate('/dashboard');
 
     } catch (error) {
       console.error("Registration error:", error);
       Swal.fire({
         icon: "error",
-        title: "Error inesperado",
+        title: "Error en el registro",
         text: error instanceof Error ? error.message : "Ocurrió un problema durante el registro",
         confirmButtonColor: "#2563eb",
         background: "#1e293b",
@@ -114,14 +73,12 @@ const Register = () => {
       setIsLoading(false);
     }
   };
+
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Contenido del formulario */}
       <div className="relative z-10 flex flex-1 items-center justify-center p-6">
-        <div className="w-full max-w-4xl"> {/* Aumenté el max-width a 4xl */}
-          {/* Tarjeta del formulario */}
+        <div className="w-full max-w-4xl">
           <div className="bg-slate-800/70 backdrop-blur-sm rounded-2xl overflow-hidden border border-slate-700/50 shadow-2xl">
-            {/* Encabezado con degradado (sin cambios) */}
             <div className="bg-gradient-to-r from-blue-800/50 to-blue-900/50 p-8 text-center border-b border-slate-700/50">
               <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg mb-4">
                 <Building2 className="h-7 w-7 text-white" />
@@ -134,18 +91,10 @@ const Register = () => {
               </p>
             </div>
 
-            {/* Cuerpo del formulario - Modificado a 3 columnas */}
             <div className="p-8">
-              {error && (
-                <div className="mb-6 p-3 bg-red-900/50 border border-red-700/50 rounded-lg text-red-200 text-sm">
-                  {error}
-                </div>
-              )}
-
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="space-y-6">
-                  {/* Sección de datos de la empresa - Ahora en 3 columnas */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6"> {/* Cambiado a 3 columnas */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-blue-200 mb-2">
                         Nombre de la empresa
@@ -202,7 +151,6 @@ const Register = () => {
                     </div>
                   </div>
 
-                  {/* Campos de contraseña - 2 columnas (para mantener proporción) */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-blue-200 mb-2">
@@ -245,7 +193,6 @@ const Register = () => {
                     </div>
                   </div>
 
-                  {/* Selección de Plan - Full width */}
                   <div>
                     <label className="block text-sm font-medium text-blue-200 mb-3">
                       Selecciona tu plan
@@ -299,7 +246,6 @@ const Register = () => {
                     </div>
                   </div>
 
-                  {/* Términos y botón (sin cambios) */}
                   <div className="flex items-start">
                     <input
                       id="terms"
@@ -327,7 +273,6 @@ const Register = () => {
             </div>
           </div>
 
-          {/* Enlace a login */}
           <div className="mt-6 text-center text-sm text-blue-300">
             ¿Ya tienes una cuenta?{' '}
             <Link to="/login" className="text-amber-400 hover:text-amber-300 font-medium">

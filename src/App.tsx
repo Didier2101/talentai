@@ -1,29 +1,48 @@
-import { Navigate, Route, Routes } from "react-router-dom"
-import Publicos from "./routes/Publicos"
-import Privados from "./routes/Privados"
+import { Routes, Route } from 'react-router-dom';
 
+// Layouts
+import PublicLayout from './components/publicos/PublicLayout';
+// import PrivateLayout from './components/privados/PrivateLayout';
 
+// Rutas
+import PublicRoutes from './routes/PublicRoutes';
+// import PrivateRoutes from './routes/PrivadosRoutes';
+
+// Páginas individuales
+import Login from './components/publicos/auth/Login';
+import Register from './components/publicos/auth/Register';
+import NotFoundPage from './components/comunes/NotFoundPage';
+import EnterpriseLayout from './components/enterprise/EnterpriseLayout';
+import EnterpriseRoutes from './routes/EnterpriseRoutes';
+import CandidatesRoutes from './routes/candidatesRoutes';
+import CandidatesLayout from './components/candidates/CandidatesLayout';
 
 function App() {
-
   return (
-    <>
-      {/* Aquí puedes agregar un componente de encabezado si lo necesitas */}
+    <Routes>
+      {/* Rutas de autenticación sin layout */}
 
-      {/* Definición de las rutas de la aplicación */}
-      <Routes>
-        {/* Ruta raíz "/" redirige a la vista pública principal */}
-        <Route path="/*" element={<Publicos />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-        {/* Rutas privadas accesibles solo si el usuario está autenticado */}
-        <Route path="/privados/*" element={<Privados />} />
+      {/* Rutas públicas con layout */}
+      <Route path="/*" element={<PublicLayout />}>
+        <Route path="*" element={<PublicRoutes />} />
+      </Route>
 
-        {/* Ruta por defecto si no coincide ninguna (fallback) */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-      {/* Aquí puedes agregar un componente de pie de página si lo necesitas */}
-    </>
-  )
+      {/* Rutas Privadas con Layout Privado */}
+      <Route path="/enterprise/*" element={<EnterpriseLayout />}>
+        <Route path="*" element={<EnterpriseRoutes />} />
+      </Route>
+
+      {/* Rutas Privadas con Layout Privado */}
+      <Route path="/candidates/*" element={<CandidatesLayout />}>
+        <Route path="*" element={<CandidatesRoutes />} />
+      </Route>
+      {/* Ruta catch-all global solo si ninguna coincide (por fuera de layouts) */}
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
 }
 
-export default App
+export default App;

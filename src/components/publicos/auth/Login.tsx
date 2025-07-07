@@ -130,12 +130,7 @@ const Login = () => {
 
                                 {/* Botón de envío */}
                                 <div>
-                                    <Link
-                                        to="/privados/candidatos"
-                                        className="text-amber-400 hover:text-amber-300 font-medium transition-colors"
-                                    >
-                                        ir a candidatos
-                                    </Link>
+
                                     <button
                                         type="submit"
                                         disabled={isLoading}

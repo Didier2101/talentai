@@ -107,9 +107,9 @@ const GestionCargos: React.FC = () => {
     const areaOptions = ['Tecnología', 'Marketing', 'Analítica', 'Recursos Humanos', 'Operaciones'];
 
     return (
-        <div className="min-h-full text-white max-w-8xl mx-auto">
+        <div className="">
             {/* Header */}
-            <div className="pt-6 md:pt-8 pb-4 md:pb-6 px-4 sm:px-6">
+            <div className=" pb-4 md:pb-6 px-4 sm:px-6">
                 <div>
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div className="flex items-center space-x-3 md:space-x-4">
@@ -125,7 +125,7 @@ const GestionCargos: React.FC = () => {
                         </div>
 
                         <button
-                            onClick={() => navigate('/privados/cargos/crear')}
+                            onClick={() => navigate('/enterprise/cargos/crear')}
                             className="bg-gradient-to-r from-amber-400 to-amber-500 text-blue-900 font-bold py-2 px-4 md:py-3 md:px-6 rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center group w-full md:w-auto"
                         >
                             <PlusCircle className="w-4 h-4 md:w-5 md:h-5 mr-2" />

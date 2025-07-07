@@ -6,9 +6,6 @@ import {
     Upload,
     ListFilter,
     Sparkles,
-    Check,
-    Gem,
-    Star,
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -162,103 +159,7 @@ export default function LandingPage() {
                     </div>
                 </section>
 
-                {/* Nueva Sección de Planes */}
-                <section className="py-20 px-6">
-                    <div className="max-w-6xl mx-auto">
-                        <div className="text-center mb-16">
-                            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                                Planes a <span className="text-amber-500">Tu Medida</span>
-                            </h2>
-                            <p className="text-lg text-blue-200 max-w-2xl mx-auto">
-                                Elige el plan que mejor se adapte a tus necesidades de reclutamiento
-                            </p>
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                            {/* Plan Pago por Uso */}
-                            <div className="bg-gradient-to-b from-slate-800/70 to-slate-900/70 p-8 rounded-xl shadow-xl border border-blue-800/30 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                                <div className="flex items-center justify-between mb-6">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
-                                            <Star className="w-6 h-6 text-white" />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-white">Pago por Uso</h3>
-                                    </div>
-                                    <span className="text-xs bg-blue-900/50 text-blue-200 px-3 py-1 rounded-full">Flexible</span>
-                                </div>
-
-                                <div className="mb-8">
-                                    <p className="text-blue-200 mb-4">Ideal para empresas con necesidades esporádicas de contratación</p>
-                                    <div className="flex items-end">
-                                        <span className="text-4xl font-bold text-white">$500</span>
-                                        <span className="text-blue-300 ml-1">/CV</span>
-                                    </div>
-                                </div>
-
-                                <ul className="space-y-3 mb-8">
-                                    {[
-                                        "Procesamiento ilimitado de CVs",
-                                        "Resultados en minutos",
-                                        "Ranking de candidatos",
-                                        "Compatibilidad cultural",
-                                        "Soporte básico"
-                                    ].map((feature, index) => (
-                                        <li key={index} className="flex items-center text-blue-200">
-                                            <Check className="w-5 h-5 text-green-400 mr-2" />
-                                            {feature}
-                                        </li>
-                                    ))}
-                                </ul>
-
-
-                            </div>
-
-                            {/* Plan Anual Ilimitado */}
-                            <div className="bg-gradient-to-b from-amber-900/30 to-amber-800/20 p-8 rounded-xl shadow-xl border border-amber-600/30 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden">
-                                <div className="absolute top-4 right-4 bg-amber-500 text-amber-900 text-xs font-bold px-3 py-1 rounded-full">
-                                    POPULAR
-                                </div>
-
-                                <div className="flex items-center justify-between mb-6">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
-                                            <Gem className="w-6 h-6 text-white" />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-white">Anual Ilimitado</h3>
-                                    </div>
-                                    <span className="text-xs bg-amber-900/50 text-amber-200 px-3 py-1 rounded-full">Ahorro</span>
-                                </div>
-
-                                <div className="mb-8">
-                                    <p className="text-blue-200 mb-4">Perfecto para empresas con alta rotación o crecimiento acelerado</p>
-                                    <div className="flex items-end">
-                                        <span className="text-4xl font-bold text-white">$250.000</span>
-                                        <span className="text-blue-300 ml-1">/año</span>
-                                    </div>
-                                </div>
-
-                                <ul className="space-y-3 mb-8">
-                                    {[
-                                        "Procesamiento ilimitado de CVs",
-                                        "Resultados prioritarios",
-                                        "Informes avanzados",
-                                        "Soporte premium 24/7",
-                                        "Integraciones API",
-                                        "Entrenamiento personalizado"
-                                    ].map((feature, index) => (
-                                        <li key={index} className="flex items-center text-blue-200">
-                                            <Check className="w-5 h-5 text-green-400 mr-2" />
-                                            {feature}
-                                        </li>
-                                    ))}
-                                </ul>
-
-
-                            </div>
-                        </div>
-
-                    </div>
-                </section>
                 {/* Final CTA */}
                 <section className="py-20 px-6 text-center">
                     <div className="max-w-4xl mx-auto">

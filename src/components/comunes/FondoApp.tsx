@@ -1,7 +1,6 @@
-// components/FondoApp.tsx
 const FondoApp = ({ children }: { children: React.ReactNode }) => {
     return (
-        <div className="fixed min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-800 relative">
+        <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-800 overflow-y-auto">
             {/* Fondo con patrón de puntos */}
             <div
                 className="fixed inset-0 pointer-events-none"
@@ -10,11 +9,11 @@ const FondoApp = ({ children }: { children: React.ReactNode }) => {
                 }}
             />
             {/* Contenido */}
-            <div className="relative z-10">
+            <div className="relative min-h-full w-full z-10">
                 {children}
             </div>
         </div>
     );
 };
 
-export default FondoApp;
+export default FondoApp

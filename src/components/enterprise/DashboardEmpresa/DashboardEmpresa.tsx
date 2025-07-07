@@ -19,7 +19,7 @@ const DashboardEmpresa: React.FC = () => {
     return (
         <div className="min-h-full  text-white max-w-8xl mx-auto">
             {/* Header */}
-            <div className="pt-8 pb-12 px-6">
+            <div className="">
                 <div >
                     <div className="flex items-center space-x-4 mb-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center shadow-lg">
@@ -47,7 +47,7 @@ const DashboardEmpresa: React.FC = () => {
             </div>
 
             {/* Main Content */}
-            <div className=" px-4 sm:px-6 lg:px-8 pb-12">
+            <div className="mt-4">
                 {/* Metrics Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {/* Cargos Activos */}
